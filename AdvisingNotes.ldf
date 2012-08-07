@@ -1,0 +1,51 @@
+# START - Advising Notes
+dn: CN=[CUS] AdvisingNotes,OU=PortletTemplates,CN=Portal,O=Jenzabar,C=US
+changetype: add
+jenzabar-ICSNET-GUID:: sNr09mTCpk2TAr1fa4A8eg==
+objectClass: top
+objectClass: jenzabar-ICSNET-PortletTemplate
+displayName: Advising Notes
+jenzabar-ICSNET-PortletPath: AdvisingNotes,AdvisingNotes.AdvisingNotes
+jenzabar-ICSNET-ApplicationPointer: CN=CUS,OU=PortalApplications,CN=Portal,O=Jenzabar,C=US
+instanceType: 4
+objectCategory: CN=Portlet-Template,CN=Schema,cn=configuration,cn=x
+
+dn: OU=Operations,CN=[CUS] AdvisingNotes,OU=PortletTemplates,CN=Portal,O=Jenzabar,C=US
+changetype: add
+objectClass: top
+objectClass: organizationalUnit
+instanceType: 4
+objectCategory: CN=Organizational-Unit,CN=Schema,CN=Configuration,CN=X
+
+dn: CN=CANACCESS,OU=Operations,CN=[CUS] AdvisingNotes,OU=PortletTemplates,CN=Portal,O=Jenzabar,C=US
+changetype: add
+objectClass: top
+objectClass: jenzabar-ICSNET-Operation
+displayName: Allow Access
+jenzabar-ICSNET-ContextLevel: 1
+jenzabar-ICSNET-GenericFlags: 0
+instanceType: 4
+objectCategory: CN=Operation,CN=Schema,CN=Configuration,CN=X
+
+dn: CN=EDITALL,OU=Operations,CN=[CUS] AdvisingNotes,OU=PortletTemplates,CN=Portal,O=Jenzabar,C=US
+changetype: add
+objectClass: top
+objectClass: jenzabar-ICSNET-Operation
+displayName: Edit all advisee info
+jenzabar-ICSNET-ContextLevel: 1
+jenzabar-ICSNET-GenericFlags: 0
+instanceType: 4
+objectCategory: CN=Operation,CN=Schema,CN=Configuration,CN=X
+
+dn: CN=VIEWALL,OU=Operations,CN=[CUS] AdvisingNotes,OU=PortletTemplates,CN=Portal,O=Jenzabar,C=US
+changetype: add
+objectClass: top
+objectClass: jenzabar-ICSNET-Operation
+displayName: View all advisee info
+jenzabar-ICSNET-ContextLevel: 1
+jenzabar-ICSNET-GenericFlags: 0
+instanceType: 4
+objectCategory: CN=Operation,CN=Schema,CN=Configuration,CN=X
+# END - Advising Notes
+
+

@@ -1,0 +1,52 @@
+README FOR ADVISING NOTES PORTLET FOR JENZABAR EX
+VERSION 1.0 released 4/16/2010
+by Tom Davidson of Edgewood College (tomdavidson@edgewood.edu)
+
+
+DESCRIPTION OF INTENDED FUNCTIONALITY
+This is a modified version of a larger and more generic portlet we've created to manage Notepad online. That larger version includes the ability to select different action types and reflects action type (i.e. standard Notepad) security. It also ONLY displays Notepad information. 
+
+In response to demand from a number of schools on the listserve, and following discussions with some of them, I revised this portlet to do the following:
+
+1) Only display and update the NOTE action type.
+2) Only display notes of a specific module code ("AV" by default, but this can be edited in the .cs file; the location is clearly identified. The string you want is strAdvisingModuleCode.)
+3) Display basic registration info about the selected student.
+4) Display basic (currently-registered) course info about the selected student.
+5) Allow NOTE actions to be assigned to other Notepad users, along with a due date and completion tracking. (Note that this functionality is not present in EX; NOTE action types are artificially limited by the EX interface. The notes appear to behave normally in EX even with this functionality grafted onto them, however.)
+6) The portlet has four security levels. If placed somewhere a student or otherwise non-privileged user can see it (which, frankly, isn't recommended), it will show that user his or her course and registration info (if any) and any notes with the Advising module code that have been attached to his or her account. Users who are identified as the currently active advisors of any student in the ADVISOR_STUD_TABLE (or advisors to whom an advising note has been assigned) will be able to select from a list of their own advisees and edit, add, or set inactive (note: this portlet does not delete anything out of the ITEMS table, ever; it simply sets them inactive and refuses to show inactive items) any notes attached. Two other role-based security levels are possible, and are handled through global operations: ViewAll and EditAll. Someone with ViewAll rights can select any advisee in the system to view his or her information and the notes on the account, but can only edit or add notes to that advisee if he or she is that advisee's advisor OR if an advising note has been assigned using TO_DO_USER_ID. Someone with EditAll rights can view and add/edit any note on any advisee.
+
+
+USAGE
+An advisor comes to a page with the portlet on it. If he has ViewAll or EditAll rights, he is allowed to choose from a list of advisors or a list of all advisees; if he selects an advisor, the list of advisees is filtered to include only advisees of that advisor. Advisors without ViewAll or EditAll rights will only see a dropdownlist filtered to include their own advisees, and any advisee to whom they have been assigned a Note (via TO_DO_USER_ID) which is still marked Pending (or, rather, not Completed). Selecting an Advisee will cause two collapsible panels to appear. The first contains basic registration info and a datagrid listing all courses in which that advisee is registered; the second contains a datagrid listing all non-inactive notes on that advisee's account under the advising module code, as well as a panel (only displayed if the advisor has rights) that allows new notes to be added. If the advisor has rights, Edit and Delete buttons appear on the right side of the Notes datagrid. Clicking "Delete" produces a confirmation dialog, and then if confirmed proceeds to set the selected note to Inactive. Clicking "Edit" alters the "Add Note" form to include the data and information relevant to the selected note; a submission from that form now modifies the selected note instead of creating a new one.
+
+
+CONCEPTUAL LIMITATIONS AND POSSIBLE IMPROVEMENTS
+Conceptually, this portlet has been designed to be structurally very simple; it contains only one "page" and uses a relatively straightforward, procedural approach to database access. The ParentPortlet.ShowFeedback method is used extensively throughout for all error handling, and most data access (with only a couple exceptions) relies on a mid-layer of custom views and functions. This makes securing the portlet mostly trivial. HTMLEncode is being used as a quick and dirty way of screening HTML input, although a suggested Regex string is provided if users would rather simply strip and replace likely bad tags. (Alternately, very trusting users might choose to strip only specific tags and then remove the HTMLEncode. I don't recommend it, but it would allow for very pretty notes.) If you want to build a more secure and interesting HTML handler, please do.
+
+I haven't spent a lot of time styling this thing or making it pretty. It also incorporates no AJAX, because I didn't know how comfortable some of the people for whom I wrote this would be with JavaScript. Because I wanted to keep things simple, too, I did not include any sort of alternate display for incredibly long entries in the ITEM_DESCRIPTION; a very trivial modification would use a popup or a separate page to display the entire text when clicked, but otherwise display just a few lines of "summary" to keep the initial Notes grid shorter and easier to scan. These are obvious potential areas for improvement. Other future improvements might include intelligent paging in the grid (for those schools with many, many notes per user), reminders or alerts for "overdue" assigned notes, the ability to set notes "private" or "restricted," and perhaps even some form of extended workflow (although I worry that this begins to subvert the design of the ITEMS table). 
+
+
+PRE-INSTALLATION INSTRUCTIONS
+This portlet will work on any JICS 7.x installation, although it will need to be recompiled to work with ANY of them due to my decision to embed the database connection string in the .CS file. It is currently a VS2008 project; I am unaware whether VS2005 can successfully parse it, although I suspect it can.
+
+Preparing the SQL server
+The portlet relies very heavily on custom views and a couple functions to simplify security. It is therefore necessary to create those views in the database and grant the database user access to those views. A file -- "SQL Creation Queries for Advising Notes Portlet.sql" -- has been included which, when executed in SSMS against the intended database, will create the JICSAdvisingNotes login and all necessary views and functions, then grant access to the aforementioned login. Note: please ensure that you have entered a decently-secure password into the SQL script before executing it. Otherwise, your JICSAdvisingNotes login will have a password of "ENTER_A_STRONG_PASSWORD_HERE", and that's just embarrassing.
+
+Recompiling
+Once you have prepared the SQL server as described above, you will need to edit the file Default_View.ascx.cs to include (at minimum) your server name, your database name (as it's currently set, for safety reasons, to TmsEPly), and the username and password of the database login created in the step above. You will then need to recompile. Note that there are many reasons why the file would fail to build at this stage; if you can't get a successful build, read the sections below. 
+
+Fixing References for older versions
+If you are on an older version of JICS 7.x, you may need to re-identify the Jenzabar .dlls referenced (in References, natch) due to significant changes in each point version. If this is necessary, you will be able to tell by noticing a little yellow icon next to several .dlls in the References toolbar; additionally, and far more obviously, the portlet will not successfully build. Fixing this is relatively simple. Right-click "References," choose "Add," and then "Browse" to the \Portal\bin folder. You can click on all the .dlls referenced at once, or do them one at a time. As you select the correct .dll, the little warning icon will vanish; it will not be necessary to manually remove the old .dll from the project, as selecting the correct one will suffice. Once all the .dlls have been re-added to the project, the project should build.
+
+Post-build events
+Note that there are post-build events attached to the project that attempt to copy the .dlls into the \portal\bin folder and the .ascx files into the Portlets\CUS\ICS\AdvisingNotes folder. If your locations for these folders differ, or if you need elevated security to write to these locations, you should revise the post-build event or simply delete it altogether and manually copy the necessary files.
+
+
+INSTALLATION INSTRUCTIONS
+If the post-build event was configured correctly, you're already most of the way installed by this point. (If it isn't, just copy the .dlls into the \Portal\bin folder and the .ascx files into the Portlets\CUS\ICS\AdvisingNotes folder, and you should be good to go.) You'll just need to add the portlet to ADAM in the usual way; I've included an AdvisingNotes.ldf file to simplify the LDIFDE import. 
+
+Global Operations (or, How I Learned to Stop Worrying and Just Stick Them in the LDIFDE ADAM Import)
+Try as I might, I simply could not get the global operations used by this portlet to add themselves to ADAM. You'll know you're having the same difficulty if you can successfully add the portlet to a tab, but then cannot add an instance of it to a page on that tab -- AND, additionally, if you do not see any Global Operations listed as being available for the Advising Notes portlet within Site Manager. (If you DO see Global Operations listed and still can't add the portlet to the page, you have probably put the .dll or .ascx files in the wrong place(s).) This is an extremely common problem, and one that has frustrated many a portlet developer. In fact, it's SO frustrating that I've just gone ahead and added the Operations to the .ldf file I've supplied, so if you DON'T have those Operations, I'm very confused. Please contact me if you have this problem.
+
+Troubleshooting
+At this stage, the portlet is too new for me to be aware of obvious errors. Feel free to drop me an email at tomdavidson@edgewood.edu with problems you encounter, however.
